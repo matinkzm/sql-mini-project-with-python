@@ -1,0 +1,87 @@
+import pandas as pd
+import csv
+import sqlite3
+import mysql.connector
+
+connection = sqlite3.connect("RealWorldData.db")
+cursor = connection.cursor()
+
+df = pd.read_csv("https://cf-courses-data.s3.us.cloud-object-storage.appdomain.cloud/IBMDeveloperSkillsNetwork"
+                 "-DB0201EN-SkillsNetwork/labs/FinalModule_Coursera_V5/data/ChicagoCensusData.csv")
+df.to_sql("CENSUS_DATA", connection, if_exists='replace', index=False,method="multi")
+
+df = pd.read_csv("https://cf-courses-data.s3.us.cloud-object-storage.appdomain.cloud/IBMDeveloperSkillsNetwork"
+                 "-DB0201EN-SkillsNetwork/labs/FinalModule_Coursera_V5/data/ChicagoCrimeData.csv")
+df.to_sql("CHICAGO_CRIME_DATA", connection, if_exists='replace', index=False, method="multi")
+
+df = pd.read_csv("https://cf-courses-data.s3.us.cloud-object-storage.appdomain.cloud/IBMDeveloperSkillsNetwork"
+                 "-DB0201EN-SkillsNetwork/labs/FinalModule_Coursera_V5/data/ChicagoPublicSchools.csv")
+df.to_sql("CHICAGO_PUBLIC_SCHOOLS_DATA", connection, if_exists='replace', index=False, method="multi")
+
+cursor.execute("SELECT COUNT(name) FROM PRAGMA_TABLE_INFO('CHICAGO_PUBLIC_SCHOOLS_DATA')")
+table_count = cursor.fetchone()
+print("table count = " + str(table_count))
+
+cursor.execute("SELECT name , type , length(type) FROM PRAGMA_TABLE_INFO('CHICAGO_PUBLIC_SCHOOLS_DATA')")
+table_col_names = cursor.fetchall()
+print(table_col_names)
+
+
+cursor.execute("""SELECT COUNT(*) FROM CHICAGO_PUBLIC_SCHOOLS_DATA WHERE "Elementary, Middle, or High School"='ES'""")
+result1 = cursor.fetchall()
+print(result1)
+
+
+cursor.execute("SELECT MAX(Safety_Score) FROM CHICAGO_PUBLIC_SCHOOLS_DATA")
+result2 = cursor.fetchall()
+print(result2)
+
+
+cursor.execute("SELECT Name_of_School FROM CHICAGO_PUBLIC_SCHOOLS_DATA WHERE Safety_Score = (SELECT MAX(Safety_Score) FROM CHICAGO_PUBLIC_SCHOOLS_DATA)")
+result3 = cursor.fetchall()
+print(result3)
+
+
+cursor.execute("SELECT Name_of_School FROM CHICAGO_PUBLIC_SCHOOLS_DATA ORDER BY Average_Student_Attendance DESC LIMIT 10")
+result4 = cursor.fetchall()
+print(result4)
+
+
+cursor.execute("SELECT Name_of_School , Average_Student_Attendance FROM CHICAGO_PUBLIC_SCHOOLS_DATA ORDER BY Average_Student_Attendance LIMIT 5")
+result5 = cursor.fetchall()
+print(result5)
+
+
+cursor.execute("SELECT Name_of_School , REPLACE(Average_Student_Attendance,'%','') FROM CHICAGO_PUBLIC_SCHOOLS_DATA ORDER BY Average_Student_Attendance LIMIT 5")
+result6 = cursor.fetchall()
+print(result6)
+
+
+cursor.execute("SELECT Name_of_School , Average_Student_Attendance FROM CHICAGO_PUBLIC_SCHOOLS_DATA WHERE Average_Student_Attendance < 70 ORDER BY Average_Student_Attendance ASC")
+result7 = cursor.fetchall()
+print(result7)
+
+cursor.execute("SELECT Community_Area_Name , SUM(College_Enrollment) AS TOTAL_ENROLLMENT FROM CHICAGO_PUBLIC_SCHOOLS_DATA GROUP BY Community_Area_Name")
+result8 = cursor.fetchall()
+print(result8)
+
+
+cursor.execute("SELECT Community_Area_Name , SUM(College_Enrollment) AS TOTAL_ENROLLMENT FROM CHICAGO_PUBLIC_SCHOOLS_DATA GROUP BY Community_Area_Name ORDER BY TOTAL_ENROLLMENT ASC LIMIT 5")
+result9 = cursor.fetchall()
+print(result9)
+
+
+cursor.execute("SELECT Name_of_School , Safety_Score FROM CHICAGO_PUBLIC_SCHOOLS_DATA WHERE Safety_Score <> 'None' ORDER BY Safety_Score ASC LIMIT 5")
+result10 = cursor.fetchall()
+print(result10)
+
+
+cursor.execute("SELECT HARDSHIP_INDEX FROM CENSUS_DATA , CHICAGO_PUBLIC_SCHOOLS_DATA WHERE CENSUS_DATA.COMMUNITY_AREA_NUMBER = CHICAGO_PUBLIC_SCHOOLS_DATA.COMMUNITY_AREA_NUMBER AND COLLEGE_ENROLLMENT = 4368")
+result11 = cursor.fetchall()
+print(result11)
+
+
+
+
+
+
