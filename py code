@@ -3,9 +3,11 @@ import csv
 import sqlite3
 import mysql.connector
 
+# connect to the database and make a cursor
 connection = sqlite3.connect("RealWorldData.db")
 cursor = connection.cursor()
 
+# read some csv data files and convert it to a local database
 df = pd.read_csv("https://cf-courses-data.s3.us.cloud-object-storage.appdomain.cloud/IBMDeveloperSkillsNetwork"
                  "-DB0201EN-SkillsNetwork/labs/FinalModule_Coursera_V5/data/ChicagoCensusData.csv")
 df.to_sql("CENSUS_DATA", connection, if_exists='replace', index=False,method="multi")
@@ -18,6 +20,8 @@ df = pd.read_csv("https://cf-courses-data.s3.us.cloud-object-storage.appdomain.c
                  "-DB0201EN-SkillsNetwork/labs/FinalModule_Coursera_V5/data/ChicagoPublicSchools.csv")
 df.to_sql("CHICAGO_PUBLIC_SCHOOLS_DATA", connection, if_exists='replace', index=False, method="multi")
 
+
+# run some sql queries
 cursor.execute("SELECT COUNT(name) FROM PRAGMA_TABLE_INFO('CHICAGO_PUBLIC_SCHOOLS_DATA')")
 table_count = cursor.fetchone()
 print("table count = " + str(table_count))
